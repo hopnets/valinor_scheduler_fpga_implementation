@@ -1,7 +1,7 @@
-`ifndef VALINOR_DATATYPES
-`define VALINOR_DATATYPES
+`ifndef VERTIGO_DATATYPES
+`define VERTIGO_DATATYPES
 
-package valinor_datatypes;
+package vertigo_datatypes;
 
 parameter LIST_SIZE = (2**6);
 parameter ID_LOG = $clog2(LIST_SIZE);	// $clog2 returns the ceiling of logarithm to the base e

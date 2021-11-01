@@ -7,29 +7,29 @@
 //`define MAJOR_PRINT
 //`define EXTRA_PRINT
 
-import valinor_datatypes::*;
+import vertigo_datatypes::*;
 
 /* NULL element is all 1s, i.e., e.id = '1, e.rank = '1, and e.send_time = '1
  * It is assumed that '1 for rank and send_time values equals Infinity
 */
 
-module valinor
+module vertigo
 (
     input clk,
     input rst,
 
     /* reset all the internal datastructures */
-    output logic valinor_reset_done_out,
+    output logic vertigo_reset_done_out,
 
     /* signal to start
      * this signal should be set all datastructures are reset
     */
     input start,
 
-    /* signal that valinor is ready for the next primitive operation
+    /* signal that vertigo is ready for the next primitive operation
      * wait for this signal to be set before issuing the next primitive operation
     */
-    output logic valinor_ready_for_nxt_op_out,
+    output logic vertigo_ready_for_nxt_op_out,
 
     /* interface for enqueue(f) operation */
     input enqueue_f_in,
@@ -41,7 +41,7 @@ module valinor
     input dequeue_in,
     input [TIME_LOG-1:0] curr_time_in,
 	 
-	 /*Valinor: input interface for dequeue_end() operation*/
+	 /*Vertigo: input interface for dequeue_end() operation*/
     input dequeue_end_in,
 
     /* input interface for dequeue(f) operation */
@@ -68,7 +68,7 @@ module valinor
     logic [TIME_LOG-1:0] curr_time_in_reg;
     logic dequeue_f_in_reg;
     logic [ID_LOG-1:0] flow_id_in_reg;
-    logic dequeue_end_in_reg;		// Valinor
+    logic dequeue_end_in_reg;		// Vertigo
 
 	 /*
 	  * The type that a neighbor sublist can have, it can be right/left neighbor, 
@@ -247,11 +247,11 @@ module valinor
 
 								
 	 
-	 // Valinor: Keeping the largest RANK among sublists
+	 // Vertigo: Keeping the largest RANK among sublists
 	 logic [RANK_LOG-1:0] dequeue_end_largest_sublist_rank;
 	 logic [$clog2(NUM_OF_SUBLIST)-1:0] dequeue_end_largest_sublist_rank_id;
 	 
-	 // Valinor: Keeping the largest RANK among elements of a sublist
+	 // Vertigo: Keeping the largest RANK among elements of a sublist
     logic [RANK_LOG-1:0] dequeue_end_largest_element_rank;
 	 logic [ID_LOG-1:0] dequeue_end_largest_element_rank_id; 
     
@@ -304,7 +304,7 @@ module valinor
     ) pri_encoder_BB(bit_vector_BB, encode_BB, valid_BB);
 
 	 /*
-	  * List of operations done by valinor expressed as curr_state and nxt_state
+	  * List of operations done by vertigo expressed as curr_state and nxt_state
 	 */
     typedef enum {
 `ifdef SIMULATION
@@ -320,9 +320,9 @@ module valinor
         DEQ_FETCH_SUBLIST_FROM_MEM,
         POS_TO_DEQUEUE,
         DEQ_WRITE_BACK_TO_MEM
-    } valinor_ops;
+    } vertigo_ops;
 
-    valinor_ops curr_state, nxt_state;
+    vertigo_ops curr_state, nxt_state;
 
     reg [31:0] curr_address;
 
@@ -371,8 +371,8 @@ module valinor
             wr_data_BB[i] = '0;
         end
         nxt_state = curr_state;
-        valinor_reset_done_out = 0;
-        valinor_ready_for_nxt_op_out = 0;
+        vertigo_reset_done_out = 0;
+        vertigo_ready_for_nxt_op_out = 0;
         enq_valid_out = 0;
         f_enqueued_in_sublist_out = '1;
         deq_valid_out = 0;
@@ -383,10 +383,10 @@ module valinor
         bit_vector_A = '0;
         bit_vector_AA = '0;
         bit_vector_BB = '0;
-		  dequeue_end_largest_sublist_rank = '0;	// Valinor, should be zero to get max
-		  dequeue_end_largest_sublist_rank_id = '1; // Valinor
-		  dequeue_end_largest_element_rank = '0;	// Valinor, should be zero to get max
-		  dequeue_end_largest_element_rank_id = '1; // Valinor
+		  dequeue_end_largest_sublist_rank = '0;	// Vertigo, should be zero to get max
+		  dequeue_end_largest_sublist_rank_id = '1; // Vertigo
+		  dequeue_end_largest_element_rank = '0;	// Vertigo, should be zero to get max
+		  dequeue_end_largest_element_rank_id = '1; // Vertigo
         idx_enq = 0; //temp vals
         pred_val_deq = '0; //temp vals
 		  
@@ -420,7 +420,7 @@ module valinor
 				 `ifdef EXTRA_PRINT
 					 $display(" << The current state is: RESET_DONE >>");
 				 `endif	
-                valinor_reset_done_out = 1;
+                vertigo_reset_done_out = 1;
                 nxt_state = IDLE;
             end
 
@@ -429,7 +429,7 @@ module valinor
 					 $display(" << The current state is: IDLE >>");
 				 `endif	
                 if (start) begin
-                    valinor_ready_for_nxt_op_out = 1;
+                    vertigo_ready_for_nxt_op_out = 1;
                     if (enqueue_f_in) begin
 							  `ifdef MAJOR_PRINT
 							  	  $display("*****************************************");
@@ -501,7 +501,7 @@ module valinor
 								  $display(" << s_neigh_deq_type is %d >> ", s_neigh_deq_type);
 							  `endif	
 
-								// Valinor
+								// Vertigo
                         for (integer i=0; i<NUM_OF_SUBLIST; i=i+1) begin
 									 /*
 									  * Find the pointer array with the largest 
@@ -885,7 +885,7 @@ module valinor
 								bit_vector_A[i] = (flow_id_in_reg == rd_data_A[i].id);
                     end
                 end else if (dequeue_end_in_reg) begin
-						  // Valinor
+						  // Vertigo
 						  for (integer i=0; i<NUM_OF_ELEMENTS_PER_SUBLIST; i=i+1) begin
 								 /*
 								  * Find the pointer array with the largest 
